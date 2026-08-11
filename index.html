@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I am Sorry! 🥺❤️</title>
+    <title>A Special Letter 💌</title>
+    <!-- Cute Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
     <style>
         /* Basic Setup & Cute Theme */
         body {
-            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Quicksand', 'Segoe UI', Tahoma, sans-serif;
             background-color: #ffe6eb;
             color: #333;
             display: flex;
@@ -26,7 +28,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            pointer-events: none; /* Taki click karne me issue na ho */
+            pointer-events: none;
             z-index: -1;
         }
         .bg-heart {
@@ -55,7 +57,7 @@
 
         .hidden { display: none !important; }
 
-        h2, h1 { color: #ff4d6d; margin-bottom: 20px; font-weight: 800; }
+        h2, h1 { color: #ff4d6d; margin-bottom: 20px; font-weight: 700; }
         
         input, textarea {
             width: 100%;
@@ -87,6 +89,17 @@
         .btn-full { width: 100%; margin-top: 15px; }
         .link-box { margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ffb3c1; }
 
+        /* Intro Mode Specifics */
+        .envelope-icon {
+            font-size: 90px;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
         /* Viewer Mode Specific Styles */
         .heart-icon {
             font-size: 70px;
@@ -108,17 +121,21 @@
             font-weight: 500;
         }
 
-        /* Action Buttons (Yes / No) */
+        /* Action Buttons (Yes / No) - Same Size & Spaced */
         .action-btns {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 20px;
             margin-top: 30px;
-            position: relative;
             min-height: 50px;
         }
-        #btnYes { background: #ff4d6d; animation: heartbeat 2s infinite; width: 120px; }
-        #btnNo { background: #999; box-shadow: none; width: 120px; position: absolute; left: 50%; transform: translateX(30px); transition: 0.3s ease; }
+        #btnYes, #btnNo {
+            width: 120px;
+            box-sizing: border-box;
+        }
+        #btnYes { background: #ff4d6d; animation: heartbeat 2s infinite; }
+        #btnNo { background: #adb5bd; box-shadow: none; transition: 0.1s ease; }
         
         /* Success screen images/gifs */
         .success-gif { width: 200px; border-radius: 20px; margin-bottom: 20px; }
@@ -130,14 +147,14 @@
     <!-- Floating Hearts Container -->
     <div id="bg-hearts"></div>
 
-    <!-- SECTION 1: The Form (Where people create their link) -->
+    <!-- SECTION 1: The Form -->
     <div id="creator-mode" class="container">
         <h2>Make Your Apology 💌</h2>
         <p style="color: #666;">Create a cute magical link to say sorry.</p>
         
         <input type="text" id="senderName" placeholder="Your Name (e.g. Rahul)" required>
         <input type="text" id="partnerName" placeholder="Partner's Name (e.g. Priya)" required>
-        <textarea id="customMessage" placeholder="Type your cute apology message here... (e.g. I am really sorry babu, maaf kar do na 🥺)" required></textarea>
+        <textarea id="customMessage" placeholder="Type your cute apology message here... (e.g. I am really sorry, please forgive me 🥺)" required></textarea>
         
         <button class="btn-full" onclick="generateLink()">Generate Magic Link ✨</button>
 
@@ -148,7 +165,14 @@
         </div>
     </div>
 
-    <!-- SECTION 2: The Apology (What the partner sees) -->
+    <!-- SECTION 2: The Intro (Envelope Screen) -->
+    <div id="intro-mode" class="container hidden">
+        <h2 id="introTitle" style="color: #333;">Here is a letter from...</h2>
+        <div class="envelope-icon">💌</div>
+        <button class="btn-full" onclick="openLetter()">Open the letter ✨</button>
+    </div>
+
+    <!-- SECTION 3: The Apology (Viewer Mode) -->
     <div id="viewer-mode" class="container hidden">
         <div class="heart-icon">🥺</div>
         <h1 id="displayTitle">I am so Sorry!</h1>
@@ -164,9 +188,8 @@
         </div>
     </div>
 
-    <!-- SECTION 3: Success Screen (After clicking YES) -->
+    <!-- SECTION 4: Success Screen -->
     <div id="success-mode" class="container hidden">
-        <!-- Cute bear hug gif from tenor -->
         <img src="https://media.tenor.com/Fw5Z1mEDd_4AAAAj/tkthao219-bubududu.gif" class="success-gif" alt="Cute Hug">
         <h1>Yayyyyy! 🥰</h1>
         <p class="message-text">I knew you would forgive me! I love you so much! ❤️</p>
@@ -184,9 +207,9 @@
                 heart.innerHTML = '❤';
                 heart.classList.add('bg-heart');
                 heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = (Math.random() * 5 + 5) + 's'; // 5s to 10s
+                heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
                 heart.style.animationDelay = (Math.random() * 5) + 's';
-                heart.style.fontSize = (Math.random() * 20 + 10) + 'px'; // 10px to 30px
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
                 container.appendChild(heart);
             }
         }
@@ -199,7 +222,7 @@
             const message = document.getElementById('customMessage').value.trim();
 
             if (!sender || !partner || !message) {
-                alert("Please fill all the fields babu!");
+                alert("Please fill in all required fields.");
                 return;
             }
 
@@ -215,40 +238,22 @@
             const linkInput = document.getElementById('generatedLink');
             try {
                 await navigator.clipboard.writeText(linkInput.value);
-                alert("Link Copied! Now send it via WhatsApp or Insta. ❤️");
+                alert("Link copied to clipboard.");
             } catch (err) {
                 console.error("Failed to copy text: ", err);
             }
         }
 
-        // --- RUNAWAY NO BUTTON LOGIC ---
-        const btnNo = document.getElementById('btnNo');
-        
-        function moveButton() {
-            // Get window dimensions
-            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 20);
-            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - 20);
-            
-            // Change position to fixed so it can go anywhere on the screen
-            btnNo.style.position = 'fixed';
-            btnNo.style.left = `${Math.max(10, x)}px`;
-            btnNo.style.top = `${Math.max(10, y)}px`;
+        // --- TRANSITIONS ---
+        function openLetter() {
+            document.getElementById('intro-mode').classList.add('hidden');
+            document.getElementById('viewer-mode').classList.remove('hidden');
         }
 
-        // Mouse hover for PC
-        btnNo.addEventListener('mouseenter', moveButton);
-        // Touch start for Mobile phones
-        btnNo.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Stop the click
-            moveButton();
-        });
-
-        // --- FORGIVE LOGIC (YES BUTTON) ---
         function forgiveMe() {
             document.getElementById('viewer-mode').classList.add('hidden');
             document.getElementById('success-mode').classList.remove('hidden');
             
-            // Create faster, more hearts on success!
             document.getElementById('bg-hearts').innerHTML = ""; 
             for(let i=0; i<60; i++) {
                 setTimeout(() => {
@@ -256,12 +261,30 @@
                     heart.innerHTML = '💖';
                     heart.classList.add('bg-heart');
                     heart.style.left = Math.random() * 100 + 'vw';
-                    heart.style.animationDuration = '3s'; // Fast animation
+                    heart.style.animationDuration = '3s';
                     heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
                     document.getElementById('bg-hearts').appendChild(heart);
                 }, i * 50);
             }
         }
+
+        // --- RUNAWAY NO BUTTON LOGIC ---
+        const btnNo = document.getElementById('btnNo');
+        
+        function moveButton() {
+            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 20);
+            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - 20);
+            
+            btnNo.style.position = 'fixed';
+            btnNo.style.left = `${Math.max(10, x)}px`;
+            btnNo.style.top = `${Math.max(10, y)}px`;
+        }
+
+        btnNo.addEventListener('mouseenter', moveButton);
+        btnNo.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveButton();
+        });
 
         // --- INITIAL CHECK ON PAGE LOAD ---
         function checkUrlForMessage() {
@@ -272,15 +295,16 @@
                 try {
                     const decodedData = JSON.parse(decodeURIComponent(atob(encodedMsg)));
                     
-                    // Setup Viewer Mode
+                    // Setup Text across screens
+                    document.getElementById('introTitle').innerText = "Here is a letter from " + decodedData.s;
                     document.getElementById('displayTitle').innerText = "I am so Sorry, " + decodedData.p + " 🥺";
                     document.getElementById('displayMessage').innerText = decodedData.m;
                     document.getElementById('displaySender').innerText = decodedData.s;
                     document.getElementById('successSender').innerText = "- " + decodedData.s;
 
-                    // Hide Creator, Show Viewer
+                    // Show Intro, Hide Creator
                     document.getElementById('creator-mode').classList.add('hidden');
-                    document.getElementById('viewer-mode').classList.remove('hidden');
+                    document.getElementById('intro-mode').classList.remove('hidden');
                 } catch (error) {
                     console.error("Invalid URL parameter data.");
                     document.getElementById('creator-mode').classList.remove('hidden');
@@ -292,4 +316,3 @@
     </script>
 </body>
 </html>
-
