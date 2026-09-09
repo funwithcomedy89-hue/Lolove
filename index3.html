@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol: B.E.N.A 🌬️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Poppins:wght@400;600;800&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f0f1a;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 1.5s ease-in-out;
+        }
+
+        .screen {
+            position: absolute;
+            width: 90%;
+            max-width: 420px;
+            height: 85vh;
+            max-height: 700px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.9) translateY(30px);
+            pointer-events: none;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .screen.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: all;
+        }
+
+        /* Screen 1: Terminal */
+        #terminal {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: #00ff88;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 30px;
+            min-height: 150px;
+        }
+
+        .verify-btn {
+            position: relative;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-family: 'Fira Code', monospace;
+            font-weight: bold;
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .verify-fill {
+            position: absolute;
+            top: 0; left: 0; height: 100%; width: 0%;
+            background: #00ff88;
+            z-index: -1;
+            transition: width 0.1s;
+        }
+
+        /* Screen 2: Gamified Thermometer */
+        .temp-display {
+            font-size: 80px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff4757, #ff6b81);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+            transition: all 0.5s;
+        }
+
+        .ice-btn {
+            background: linear-gradient(135deg, #70a1ff, #1e90ff);
+            border: none;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            font-size: 40px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(30, 144, 255, 0.4);
+            transition: transform 0.1s;
+        }
+
+        .ice-btn:active { transform: scale(0.9); }
+
+        /* Screen 3: Cute Message */
+        .envelope {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .envelope h2 { color: #ff4757; margin-bottom: 15px; font-size: 22px;}
+        .envelope p { font-size: 15px; line-height: 1.6; font-weight: 600; color: #555;}
+        
+        .pulse-heart {
+            font-size: 60px;
+            animation: beat 1s infinite alternate;
+            margin-bottom: 10px;
+        }
+
+        @keyframes beat {
+            to { transform: scale(1.2); }
+        }
+
+        #fx-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- Screen 1: Terminal Authentication -->
+    <div class="screen active" id="screen-1">
+        <div class="pulse-heart" style="font-size:40px;">🛡️</div>
+        <div id="terminal"></div>
+        <div class="verify-btn" id="verify-btn" oncontextmenu="return false;">
+            <div class="verify-fill" id="verify-fill"></div>
+            <span id="verify-text">HOLD TO VERIFY</span>
+        </div>
+    </div>
+
+    <!-- Screen 2: Medical Minigame -->
+    <div class="screen" id="screen-2">
+        <div style="font-size:50px; margin-top:20px;">🤒</div>
+        <h2 style="margin-top:10px;">Critical Temperature</h2>
+        <div class="temp-display" id="temp-val">102.0°F</div>
+        <p style="text-align:center; color:#ddd; margin-bottom: 30px;">Tap the ice to apply virtual cooling. Bring it down to 98.6°F!</p>
+        <button class="ice-btn" onclick="applyIce()">🧊</button>
+        <div style="width: 100%; height: 10px; background:#333; border-radius:5px; margin-top:30px; overflow:hidden;">
+            <div id="temp-bar" style="width: 100%; height: 100%; background:#ff4757; transition: 0.3s;"></div>
+        </div>
+    </div>
+
+    <!-- Screen 3: The Cure -->
+    <div class="screen" id="screen-3">
+        <div class="pulse-heart">🐧</div>
+        <div class="envelope">
+            <h2>Temperature Normalized! ✨</h2>
+            <p>160 ghante ki streak aisi choti-moti bimaari se thodi tootegi?<br><br>
+            Digital UP ki hawa aur yeh virtual meds exclusively State Board Malkin ke liye deploy kar di gayi hain.<br><br>
+            Routine ki tension mat lo, apna "Grinding Partner" piche backup sambhal raha hai. Ab chup-chap phone rakho aur so jao! ❤️</p>
+        </div>
+    </div>
+
+    <script>
+        // Audio Engine (No external files)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+
+        function playBeep(freq, type = 'sine', duration = 0.1) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // --- Screen 1 Logic: Typing & Hold to Verify ---
+        const terminalText = [
+            "Initializing System...",
+            "Connecting to Server...",
+            "Alert: Patient detected with 102°F.",
+            "Target ID: The Grinding Partner",
+            "Status: Awaiting Malkin Verification..."
+        ];
+        
+        let termIdx = 0;
+        function typeTerminal() {
+            if(termIdx < terminalText.length) {
+                document.getElementById('terminal').innerHTML += `> ${terminalText[termIdx]}<br>`;
+                playBeep(800, 'square', 0.05);
+                termIdx++;
+                setTimeout(typeTerminal, 600);
+            }
+        }
+        setTimeout(typeTerminal, 500);
+
+        const verifyBtn = document.getElementById('verify-btn');
+        const verifyFill = document.getElementById('verify-fill');
+        let holdTimer;
+        let progress = 0;
+
+        function startHold(e) {
+            e.preventDefault();
+            initAudio();
+            document.getElementById('verify-text').style.color = '#0f0f1a';
+            holdTimer = setInterval(() => {
+                progress += 2;
+                verifyFill.style.width = `${progress}%`;
+                if(progress % 10 === 0) playBeep(400 + (progress*5), 'sine', 0.1);
+                if(progress >= 100) {
+                    clearInterval(holdTimer);
+                    document.getElementById('verify-text').innerText = "ACCESS GRANTED";
+                    setTimeout(() => switchScreen('screen-1', 'screen-2'), 800);
+                }
+            }, 30);
+        }
+
+        function stopHold() {
+            clearInterval(holdTimer);
+            if(progress < 100) {
+                progress = 0;
+                verifyFill.style.width = '0%';
+                document.getElementById('verify-text').style.color = '#00ff88';
+            }
+        }
+
+        verifyBtn.addEventListener('mousedown', startHold);
+        verifyBtn.addEventListener('mouseup', stopHold);
+        verifyBtn.addEventListener('mouseleave', stopHold);
+        verifyBtn.addEventListener('touchstart', startHold);
+        verifyBtn.addEventListener('touchend', stopHold);
+
+        // --- Screen 2 Logic: Gamified Thermometer ---
+        let temp = 102.0;
+        function applyIce() {
+            playBeep(1200, 'triangle', 0.1);
+            temp -= 0.4;
+            let displayTemp = temp.toFixed(1);
+            document.getElementById('temp-val').innerText = `${displayTemp}°F`;
+            
+            // Visual Updates based on temp
+            let percentage = ((temp - 98.6) / (102.0 - 98.6)) * 100;
+            document.getElementById('temp-bar').style.width = `${Math.max(percentage, 0)}%`;
+            
+            if(temp <= 100) {
+                document.getElementById('temp-val').style.background = 'linear-gradient(135deg, #feca57, #ff9f43)';
+                document.body.style.background = '#2c2c54'; // Cooling down
+            }
+            
+            // Create mini ice particle
+            createParticle('🧊', event.clientX, event.clientY);
+
+            if(temp <= 98.6) {
+                document.getElementById('temp-val').innerText = "98.6°F";
+                document.body.style.background = 'linear-gradient(135deg, #a18cd1, #fbc2eb)'; // Cute pink/purple
+                setTimeout(() => {
+                    switchScreen('screen-2', 'screen-3');
+                    triggerConfetti();
+                }, 1000);
+            }
+        }
+
+        function switchScreen(oldId, newId) {
+            document.getElementById(oldId).classList.remove('active');
+            document.getElementById(newId).classList.add('active');
+        }
+
+        // --- Screen 3 Logic: Canvas Confetti Engine ---
+        const canvas = document.getElementById('fx-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function createParticle(emoji, x, y) {
+            particles.push({
+                x: x || canvas.width / 2,
+                y: y || canvas.height / 2,
+                vx: (Math.random() - 0.5) * 15,
+                vy: (Math.random() - 1) * 15,
+                emoji: emoji,
+                size: Math.random() * 20 + 15,
+                alpha: 1
+            });
+        }
+
+        function triggerConfetti() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const emojis = ['❤️', '🐧', '✨', '💊'];
+            for(let i=0; i<60; i++) {
+                setTimeout(() => {
+                    createParticle(emojis[Math.floor(Math.random() * emojis.length)], canvas.width/2, canvas.height);
+                    if(i%5===0) playBeep(600 + (i*10), 'sine', 0.1);
+                }, i * 30);
+            }
+            animate();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3; // Gravity
+                p.alpha -= 0.015;
+                if(p.alpha > 0) {
+                    ctx.globalAlpha = p.alpha;
+                    ctx.font = `${p.size}px Arial`;
+                    ctx.fillText(p.emoji, p.x, p.y);
+                } else {
+                    particles.splice(index, 1);
+                }
+            });
+            if(particles.length > 0) requestAnimationFrame(animate);
+        }
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
+
